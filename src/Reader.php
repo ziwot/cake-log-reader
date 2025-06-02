@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace LogReader;
 
+use Cake\Chronos\Chronos;
 use DateTime;
-use DirectoryIterator;
 use SplFileInfo;
 
 /**
@@ -25,28 +25,6 @@ class Reader
         'notice' => 'Notice',
         'debug' => 'Debug',
     ];
-
-    /**
-     * Get the date of the files
-     *
-     * @return array List of different dates of files
-     */
-    public function getFileDates(): array
-    {
-        $dates = [];
-        $it = new DirectoryIterator(LOGS);
-        foreach ($it as $node) {
-            if ($node->isDot()) {
-                continue;
-            }
-
-            if ($node->isFile()) {
-                dump($node);
-            }
-        }
-
-        return array_unique($dates);
-    }
 
     /**
      * Main reader function
@@ -80,7 +58,7 @@ class Reader
             }
         }
 
-        return $logs;
+        return array_reverse($logs);
     }
 
     /**
@@ -139,7 +117,7 @@ class Reader
 
             $filesList[] = [
                 'name' => $filename,
-                'date' => $info->getCTime(),
+                'date' => Chronos::createFromTimestamp($info->getCTime()),
                 'type' => strpos($filename, 'cli-debug') !== false
                     || strpos($filename, 'cli-error') !== false
                 ? 'cli' : 'app',
